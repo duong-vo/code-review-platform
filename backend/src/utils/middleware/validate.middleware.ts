@@ -1,17 +1,23 @@
 import { Request, Response, NextFunction, RequestHandler } from 'express';
-import { AnySchema } from 'yup';
+import Joi from 'joi';
 
-function validateMiddleware(schema: AnySchema): RequestHandler  {
+function validateMiddleware(schema: Joi.Schema): RequestHandler  {
     return async (
         req: Request,
         res: Response,
         next: NextFunction
     ): Promise<void> => {
-        console.log("got here inside function of validate middleware schema", schema);
+        console.log("got here inside function of validate middleware req.body", req.body);
+        const validationOptions = {
+            abortEarly: false,
+            allowUnknown: true,
+            stripUnknown: true,
+        };
         try {
-            const value = await schema.validate({
-                body: req.body,
-            });
+            const value = await schema.validateAsync(
+                req.body,
+                validationOptions
+            );
             req.body = value;
             next();
         } catch (error: any) {

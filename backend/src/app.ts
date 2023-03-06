@@ -15,6 +15,9 @@ class App {
 
     constructor(controllers: Controller[], port:number) {
         this.app = express();
+        // use json for requests
+        this.app.use(express.json());
+
         this.port = 8000;
         this.connectToDatabase();
         this.initializeControllers(controllers);
