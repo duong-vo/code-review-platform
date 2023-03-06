@@ -1,4 +1,6 @@
 import App from './app';
+import UserController from './resources/user/user.controller';
 
-const app = new App([], 8000);
+const controllers = [new UserController()];
+const app = new App(controllers, 8000);
 app.listen();

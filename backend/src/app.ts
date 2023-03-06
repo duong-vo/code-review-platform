@@ -1,5 +1,5 @@
 import express, { Application } from 'express';
-import Controller from './interfaces/controller.interface';
+import Controller from './utils/interfaces/controller.interface';
 import mongoose from 'mongoose';
 import 'dotenv/config';
 // const app: Application = express();
