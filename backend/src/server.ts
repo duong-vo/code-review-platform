@@ -1,8 +1,10 @@
 import App from './app';
 import UserController from './resources/user/user.controller';
+import SocketServer from './resources/socket/socket';
 
 const controllers = [new UserController()];
-const app = new App(controllers, 8000);
-
+const app:App = new App(controllers, 8080);
+const server = new SocketServer(app.server);
 
 app.listen();
+server.listen();
