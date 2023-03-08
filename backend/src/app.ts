@@ -26,8 +26,9 @@ class App {
         this.server = new Server(this.app);
         // this.initializeWebSocket();
         // initalize the the entire application
-        // this.connectToDatabase();
-        this.initializeControllers(controllers);
+        this.connectToDatabase().then(() => {
+          this.initializeControllers(controllers);
+        }).catch((err) => console.log("Error", err));
     }
 
     public listen(): void {
@@ -40,7 +41,8 @@ class App {
           });
     }
 
-    private connectToDatabase(): void {
+    private async connectToDatabase(): Promise<void> {
+        console.log("got here inside connect to database");
         const { MONGODB_USER, MONGODB_PWD, MONGODB_PATH } = process.env;
         const URI: string = `mongodb://${MONGODB_USER}:${MONGODB_PWD}${MONGODB_PATH}`;
         mongoose.connect(URI);

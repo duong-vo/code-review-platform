@@ -5,6 +5,7 @@ import authMiddleware from '../../utils/middleware/auth.middleware';
 import validateMiddleware from '../../utils/middleware/validate.middleware';
 import joischema from '../../resources/user/user.joischema';
 
+
 class UserController implements Controller {
     public path = '/user';
     public router = Router();

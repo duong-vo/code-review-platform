@@ -11,7 +11,7 @@ class SocketServer {
         this.server = server;
         this.webSocketServer = new WebSocketServer({server});
         this.webSocketServer.on('connection', (ws: WebSocket) => {
-            console.log("user connected,", ws);
+            console.log("user connected,");
             ws.on('message', (data) => {
                 console.log(data);
                 ws.send("received, thank you!");
