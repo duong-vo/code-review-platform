@@ -27,12 +27,9 @@ class App {
         // this.initializeWebSocket();
         // initalize the the entire application
         // this.connectToDatabase().then(() => {
-        //   this.initializeControllers(controllers);
+        //   
         // }).catch((err) => console.log("Error", err));
-    }
-
-    public listen(): void {
-        this.app.listen(this.port, () => console.log("application running on", this.port));
+        this.initializeControllers(controllers);
     }
 
     private initializeControllers(controllers: Controller[]): void {

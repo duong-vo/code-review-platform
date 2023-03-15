@@ -43,10 +43,6 @@ class SocketServer {
         this.port = 9999;
         this.server = server;
         this.io = new WebSocketServer(this.server, {
-            serveClient: false,
-            pingInterval: 10000,
-            pingTimeout: 5000,
-            cookie: false,
             cors: {
                 origin: '*'
             }
@@ -60,6 +56,10 @@ class SocketServer {
                 socket.send('received, thank you!');
             });
         });
+
+        this.io.on('error', (err: any) => {
+            console.log('Socket server error:', err);
+        })
     }
 
     public listen() {
