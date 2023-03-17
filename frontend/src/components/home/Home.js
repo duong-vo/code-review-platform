@@ -1,25 +1,38 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import 'bootstrap/dist/css/bootstrap.css';
 import Form from 'react-bootstrap/Form';
-import socketIOclient from 'socket.io-client';
+import io from "socket.io-client";
 
-WS = "http://localhost:9999"
+const socket = io.connect("http://localhost:3001");
 
 function Home() {
-    useEffect(() => {
-        socketIOclient(WS);
-    }, []);
+    const [room, setRoom] = useState("");
+    
+    const createRoom = () => {
+        const roomId = Math.floor(Math.random() * 1000000).toString();
+        // Redirect the user to the new room URL
+        window.location.href = `/room/${roomId}`;
+    }
+
+    const joinRoom = () => {
+        if (room !== "") {
+            console.log(room);
+            socket.emit("join_room", room);
+          }
+    }
     return (
-        <div style={{ display: 'block', 
-        width: 700, 
-        padding: 30 }}>
-            <Form>
-                <Form.Group>
-                    <Form.Control type="text"
-                        placeholder="new room" />
-                </Form.Group>
-                <button type="submit" class="btn btn-dark">New Room</button>
-            </Form>
+        <div style={{
+            display: 'block',
+            width: 700,
+            padding: 30
+        }}>
+        <button type="submit" class="btn btn-dark" onClick={createRoom}>New Room</button>
+        <Form.Control type="text" 
+                        placeholder="Enter room Id"
+                        onChange={(event) => {
+                            setRoom(event.target.value);
+                          }} />
+        <button class="btn btn-dark" onClick={joinRoom}>Join Room</button>
 
         </div>
     );
