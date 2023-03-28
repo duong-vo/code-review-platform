@@ -2,9 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.css';
 import Form from 'react-bootstrap/Form';
-import io from "socket.io-client";
 
-const socket = io.connect("http://localhost:3001");
 
 function Home() {
     const [room, setRoom] = useState("");
@@ -20,9 +18,9 @@ function Home() {
         if (room !== "") {
             console.log(room);
             navigate(`/${room}`);
-            socket.emit("join_room", room);
           }
     }
+
     return (
         <div style={{
             display: 'block',
