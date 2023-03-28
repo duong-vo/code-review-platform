@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.css';
 import Form from 'react-bootstrap/Form';
 import io from "socket.io-client";
@@ -8,16 +8,18 @@ const socket = io.connect("http://localhost:3001");
 
 function Home() {
     const [room, setRoom] = useState("");
+    const navigate = useNavigate();
     
     const createRoom = () => {
         const roomId = Math.floor(Math.random() * 1000000).toString();
         // Redirect the user to the new room URL
-        window.location.href = `/room/${roomId}`;
+        navigate(`/${roomId}`);
     }
 
     const joinRoom = () => {
         if (room !== "") {
             console.log(room);
+            navigate(`/${room}`);
             socket.emit("join_room", room);
           }
     }
