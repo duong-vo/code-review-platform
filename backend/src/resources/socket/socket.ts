@@ -17,11 +17,16 @@ class SocketServer {
 
         this.io.on('connection', (socket: Socket) => {
             console.log('user connected', socket.id);
+            // test socket io emit
+            //socket.emit('messageResponse', "hi mom")
             socket.on('message', (data) => {
                 console.log(data);
                 socket.send('received, thank you!');
-                this.io.emit("message", data);
+                this.io.emit('message', data);
             });
+            socket.on('new-user', (name) => {
+                console.log('received new user name', name);
+            })
         });
 
         this.io.on('error', (err: any) => {
