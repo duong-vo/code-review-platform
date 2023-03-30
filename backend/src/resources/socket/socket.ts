@@ -24,8 +24,10 @@ class SocketServer {
                 socket.send('received, thank you!');
                 this.io.emit('message', data);
             });
-            socket.on('new-user', (name) => {
+
+            socket.on('newUser', (name) => {
                 console.log('received new user name', name);
+                socket.broadcast.emit("userConnected", name);
             })
         });
 

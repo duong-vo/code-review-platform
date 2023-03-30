@@ -7,7 +7,8 @@ import Editor from "@monaco-editor/react";
 
 function CodeEditor() {
     const [socket, setSocket] = useState(null);
-    const [isConnected, setIsConnected] = useState(false);
+    const [name, setName] = useState(null);
+    const [userList, setUserList] = useState([]);
 
     // use effect is similar to componentDidMount(), meaning 
     // this will trigger when the componenet is rendered
@@ -26,18 +27,32 @@ function CodeEditor() {
             return
         // test connection
         const name = prompt("Insert name");
-        console.log(name);
-        socket.emit('new-user', name);
-        socket.on('messageResponse', (data) => console.log(data));
-
-        console.log("socket connected", socket.connected);
+        setTimeout(() => {
+            socket.emit("newUser", name);
+          }, 1000); // wait for 1 second before emitting the newUser event
     }, [socket]);
+
+    useEffect(() => {
+        if (!socket)
+            return
+        // test connection
+        socket.on('userConnected', (received) => {
+            console.log("user connected", received)
+            setName(received);
+            setUserList((userList) => [...userList, received]);
+        });
+    }, [socket]);
+
 
 
 
     return (
         <div>
-            <div> test </div>
+            <div>
+            {
+                userList.map((name) => <div> {name} </div>)
+            }
+            </div>
             <Editor
                 height="90vh"
                 width="80vh"
