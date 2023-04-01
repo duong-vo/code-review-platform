@@ -36,6 +36,10 @@ function CodeEditor() {
         console.log("receive the name, emitted to the backend:", name);
         setTimeout(() => {
             socket.emit("newUser", name);
+            //TODO: this does not look correct
+            setUserList((userList) => [name]); 
+            // manually add the first user to userList because broadcasting
+            // requires multiple users
         }, 1000);
     }, [socket]);
 
@@ -44,6 +48,7 @@ function CodeEditor() {
             return
         socket.on('userConnected', (received) => {
             console.log("user connected", received)
+            console.log("current userList", userList)
             setName(received);
             setUserList((userList) => [...userList, received]);
         });
@@ -62,8 +67,8 @@ function CodeEditor() {
             <Editor
                 height="90vh"
                 width="80vh"
-                defaultLanguage={"javascript"}
-                defaultValue="// some comment"
+                language={language}
+                defaultValue=""
             />
             <DropdownButton
                 alignRight
@@ -72,8 +77,10 @@ function CodeEditor() {
                 onSelect={handleSelect}
             >
                 <Dropdown.Item eventKey="python">Python</Dropdown.Item>
-                <Dropdown.Item eventKey="option-2">option-2</Dropdown.Item>
-                <Dropdown.Item eventKey="option-3">option 3</Dropdown.Item>
+                <Dropdown.Item eventKey="javascript">JavaScript</Dropdown.Item>
+                <Dropdown.Item eventKey="java">Java</Dropdown.Item>
+                <Dropdown.Item eventKey="cpp">C++</Dropdown.Item>
+                <Dropdown.Item eventKey="ruby">Ruby</Dropdown.Item>
             </DropdownButton>
         </div>
     )
