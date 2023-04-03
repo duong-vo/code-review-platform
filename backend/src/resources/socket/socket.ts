@@ -29,6 +29,12 @@ class SocketServer {
                 console.log('received new user name', name);
                 socket.broadcast.emit("userConnected", name);
             })
+
+            socket.on('sendEditorChange', (value) => {
+                console.log("received value on the backend", value);
+                socket.broadcast.emit("editorChanged", value);
+                console.log("emitted to the front end", value);
+            })
         });
 
         this.io.on('error', (err: any) => {

@@ -1,17 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import 'bootstrap/dist/css/bootstrap.css';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import Dropdown from 'react-bootstrap/Dropdown'
 import io from "socket.io-client";
 import Editor from "@monaco-editor/react";
 
-
 function CodeEditor() {
     const [socket, setSocket] = useState(null);
     const [name, setName] = useState(null);
     const [language, setLanguage] = useState("javascript");
     const [userList, setUserList] = useState([]);
-
+    const editorRef = useRef(null);
+    
     const handleSelect = (event) => { 
         setLanguage(event);
     }
@@ -45,14 +45,29 @@ function CodeEditor() {
 
     useEffect(() => {
         if (!socket)
-            return
+            return;
         socket.on('userConnected', (received) => {
-            console.log("user connected", received)
-            console.log("current userList", userList)
+            console.log("user connected", received);
+            console.log("current userList", userList);
             setName(received);
             setUserList((userList) => [...userList, received]);
         });
+        
+        socket.on("editorChanged", (value) => { 
+            console.log("received change", value);
+            editorRef.current.getModel().setValue(value);
+        });
+
     }, [socket]);
+
+    const handleChange = (value) => {
+        console.log(value);
+        socket.emit("sendEditorChange", value);
+    }
+
+    const handleEditorDidMount = (editor) => {
+        editorRef.current = editor;
+    }
 
     return (
         <div>
@@ -69,6 +84,8 @@ function CodeEditor() {
                 width="80vh"
                 language={language}
                 defaultValue=""
+                onChange={handleChange}
+                onMount={handleEditorDidMount}
             />
             <DropdownButton
                 alignRight
