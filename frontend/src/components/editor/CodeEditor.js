@@ -10,6 +10,9 @@ function CodeEditor() {
     const [name, setName] = useState(null);
     const [language, setLanguage] = useState("javascript");
     const [userList, setUserList] = useState([]);
+    // this is used to make sure that we send changes only when
+    // the user is typing in
+    const [isUserChanged, setIsUserChanged] = useState(false);
     const editorRef = useRef(null);
     
     const handleSelect = (event) => { 
@@ -55,14 +58,19 @@ function CodeEditor() {
         
         socket.on("editorChanged", (value) => { 
             console.log("received change", value);
-            editorRef.current.getModel().setValue(value);
+            if (!isUserChanged) {
+                editorRef.current.getModel().setValue(value);
+            } else {
+                setIsUserChanged(false);
+            }
         });
 
-    }, [socket]);
+    }, [socket, editorRef, isUserChanged]);
 
     const handleChange = (value) => {
         console.log(value);
         socket.emit("sendEditorChange", value);
+        setIsUserChanged(true);
     }
 
     const handleEditorDidMount = (editor) => {
@@ -72,9 +80,7 @@ function CodeEditor() {
     return (
         <div>
             <div>
-                {
-                    userList.map((name) => <div> {name} </div>)
-                }
+                {userList.map((name) => <div> {name} </div>)}
             </div>
             <div>
                 {language}
