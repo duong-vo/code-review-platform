@@ -15,10 +15,6 @@ function CodeEditor() {
     // this is used to make sure that we send changes only when
     // the user is typing in
     const editorRef = useRef(null);
-    
-    const handleSelect = (event) => { 
-        setLanguage(event);
-    }
 
     // use effect is similar to componentDidMount(), meaning 
     // this will trigger when the componenet is rendered
@@ -52,17 +48,23 @@ function CodeEditor() {
             return;
         if (!editorRef)
             return;
-        socket.on('userConnected', (received) => {
-            console.log("user connected", received);
+        socket.on('userConnected', (user) => {
+            console.log("user connected", user);
             console.log("current userList", userList);
-            setName(received);
-            setUserList((userList) => [...userList, received]);
+            setName(user);
+            setUserList((userList) => [...userList, user]);
         });
         
         socket.on("editorChanged", (value) => { 
             console.log("received change", value);
             editorRef.current.getModel().setValue(value);
         });
+
+        socket.on("languageSelect", (language) => {
+            console.log("received new language selected", language);
+            // editorRef.current.getModel().setLanguage(language);
+            setLanguage(language);
+        })
 
     }, [socket]);
 
@@ -90,6 +92,12 @@ function CodeEditor() {
         editorRef.current = editor;
     }
 
+    const handleSelect = (value, event) => {
+        console.log("receive select", event);
+        socket.emit("sendLanguageSelect", value);
+        setLanguage(value);  
+    }
+
     return (
         <div>
             <div>
@@ -109,15 +117,15 @@ function CodeEditor() {
             />
             <DropdownButton
                 alignRight
-                title="Dropdown right"
+                title={language}
                 id="dropdown-menu-align-right"
                 onSelect={handleSelect}
             >
-                <Dropdown.Item eventKey="python">Python</Dropdown.Item>
-                <Dropdown.Item eventKey="javascript">JavaScript</Dropdown.Item>
-                <Dropdown.Item eventKey="java">Java</Dropdown.Item>
-                <Dropdown.Item eventKey="cpp">C++</Dropdown.Item>
-                <Dropdown.Item eventKey="ruby">Ruby</Dropdown.Item>
+                <Dropdown.Item eventKey="python">python</Dropdown.Item>
+                <Dropdown.Item eventKey="javascript">javascript</Dropdown.Item>
+                <Dropdown.Item eventKey="java">java</Dropdown.Item>
+                <Dropdown.Item eventKey="cpp">cpp</Dropdown.Item>
+                <Dropdown.Item eventKey="ruby">ruby</Dropdown.Item>
             </DropdownButton>
         </div>
     )

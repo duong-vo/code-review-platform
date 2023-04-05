@@ -25,15 +25,23 @@ class SocketServer {
                 this.io.emit('message', data);
             });
 
+            // handle user
             socket.on('newUser', (name) => {
                 console.log('received new user name', name);
                 socket.broadcast.emit("userConnected", name);
             })
-
+            
+            // handle editor change
             socket.on('sendEditorChange', (value) => {
                 console.log("received value on the backend", value);
                 socket.broadcast.emit("editorChanged", value);
                 console.log("emitted to the front end", value);
+            })
+
+            // handle select language
+            socket.on('sendLanguageSelect', (language) => {
+                console.log('received new language', language);
+                socket.broadcast.emit('languageSelect', language);
             })
         });
 
