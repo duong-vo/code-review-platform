@@ -6,7 +6,6 @@ import io from "socket.io-client";
 import Editor from "@monaco-editor/react";
 
 
-// TODO: use onDidChangeModelContent to find the source of the change!!!
 
 function CodeEditor() {
     const [socket, setSocket] = useState(null);
@@ -71,7 +70,11 @@ function CodeEditor() {
         console.log("received event", event);
         // if both are false, this means that the editor is changed
         // by typing
-        if (!event.isRedoing && !event.isUndoing) {
+
+        // is flush mean that the current model has been set to a new value
+        // this is true only when we call setValue, meaning that the edtior
+        // changes by user typing, then it will be false 
+        if (!event.isFlush) {
             socket.emit("sendEditorChange", value);
         }
 
