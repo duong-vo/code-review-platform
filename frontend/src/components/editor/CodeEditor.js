@@ -5,6 +5,9 @@ import Dropdown from 'react-bootstrap/Dropdown'
 import io from "socket.io-client";
 import Editor from "@monaco-editor/react";
 
+
+// TODO: use onDidChangeModelContent to find the source of the change!!!
+
 function CodeEditor() {
     const [socket, setSocket] = useState(null);
     const [name, setName] = useState(null);
@@ -12,7 +15,6 @@ function CodeEditor() {
     const [userList, setUserList] = useState([]);
     // this is used to make sure that we send changes only when
     // the user is typing in
-    const [isUserChanged, setIsUserChanged] = useState(false);
     const editorRef = useRef(null);
     
     const handleSelect = (event) => { 
@@ -49,6 +51,8 @@ function CodeEditor() {
     useEffect(() => {
         if (!socket)
             return;
+        if (!editorRef)
+            return;
         socket.on('userConnected', (received) => {
             console.log("user connected", received);
             console.log("current userList", userList);
@@ -58,20 +62,26 @@ function CodeEditor() {
         
         socket.on("editorChanged", (value) => { 
             console.log("received change", value);
-            if (!isUserChanged) {
-                editorRef.current.getModel().setValue(value);
-            } else {
-                setIsUserChanged(false);
-            }
+            editorRef.current.getModel().setValue(value);
         });
 
-    }, [socket, editorRef, isUserChanged]);
+    }, [socket]);
 
-    const handleChange = (value) => {
-        console.log(value);
-        socket.emit("sendEditorChange", value);
-        setIsUserChanged(true);
+    const handleChange = (value, event) => {
+        console.log("received event", event);
+        // if both are false, this means that the editor is changed
+        // by typing
+        if (!event.isRedoing && !event.isUndoing) {
+            socket.emit("sendEditorChange", value);
+        }
+
     }
+
+    // const handleDidChangeModelContent = (event) => {
+    //     console.log("received model change",);
+    //     console.log(event);
+    // }
+
 
     const handleEditorDidMount = (editor) => {
         editorRef.current = editor;
@@ -91,6 +101,7 @@ function CodeEditor() {
                 language={language}
                 defaultValue=""
                 onChange={handleChange}
+                // onDidChangeModelContent={handleDidChangeModelContent}
                 onMount={handleEditorDidMount}
             />
             <DropdownButton
