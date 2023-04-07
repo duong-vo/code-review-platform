@@ -31,6 +31,12 @@ class SocketServer {
                 socket.broadcast.emit("userConnected", name);
             })
             
+            // handle load editor
+            socket.on('joinEditor', (editorId) => {
+                console.log('received edtior id', editorId);
+                
+            })
+
             // handle editor change
             socket.on('sendEditorChange', (value) => {
                 console.log("received value on the backend", value);
@@ -43,6 +49,7 @@ class SocketServer {
                 console.log('received new language', language);
                 socket.broadcast.emit('languageSelect', language);
             })
+
         });
 
         this.io.on('error', (err: any) => {

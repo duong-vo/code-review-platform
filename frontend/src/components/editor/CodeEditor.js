@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
+import { useParams } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.css';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import Dropdown from 'react-bootstrap/Dropdown'
@@ -9,6 +10,7 @@ import Editor from "@monaco-editor/react";
 
 function CodeEditor() {
     const [socket, setSocket] = useState(null);
+    const {roomId: editorId} = useParams();
     const [name, setName] = useState(null);
     const [language, setLanguage] = useState("javascript");
     const [userList, setUserList] = useState([]);
@@ -34,8 +36,11 @@ function CodeEditor() {
         // test connection
         const name = prompt("Insert name");
         console.log("receive the name, emitted to the backend:", name);
+        console.log("editor id: ", editorId);
+
         setTimeout(() => {
             socket.emit("newUser", name);
+            socket.emit("joinEditor", editorId);
             //TODO: this does not look correct
             setUserList((userList) => [name]); 
             // manually add the first user to userList because broadcasting

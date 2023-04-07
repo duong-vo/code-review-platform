@@ -26,9 +26,7 @@ class App {
         this.server = new Server(this.app);
         // this.initializeWebSocket();
         // initalize the the entire application
-        // this.connectToDatabase().then(() => {
-        //   
-        // }).catch((err) => console.log("Error", err));
+        this.connectToDatabase().catch((err) => console.log("Error", err));
         this.initializeControllers(controllers);
     }
 
