@@ -39,8 +39,9 @@ class App {
     private async connectToDatabase(): Promise<void> {
         console.log("got here inside connect to database");
         const { MONGODB_USER, MONGODB_PWD, MONGODB_PATH } = process.env;
-        const URI: string = `mongodb://${MONGODB_USER}:${MONGODB_PWD}${MONGODB_PATH}`;
+        const URI: string = `mongodb+srv://${MONGODB_USER}:${MONGODB_PWD}${MONGODB_PATH}`;
         mongoose.connect(URI);
+        console.log("connected to the database")
     }
         
 }

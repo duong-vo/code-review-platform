@@ -1,5 +1,7 @@
 import { Server } from 'http';
 import { Server as WebSocketServer, Socket } from 'socket.io';
+import { findOrCreateEditor } from '../editor/editor.methods';
+
 
 class SocketServer {
     public io: WebSocketServer;
@@ -32,9 +34,9 @@ class SocketServer {
             })
             
             // handle load editor
-            socket.on('joinEditor', (editorId) => {
+            socket.on('joinEditor', async (editorId) => {
                 console.log('received edtior id', editorId);
-                
+                await findOrCreateEditor(editorId);
             })
 
             // handle editor change
@@ -56,6 +58,8 @@ class SocketServer {
             console.log('Socket server error:', err);
         })
     }
+
+    private handleEditorChange() {}
 
     public listen() {
         this.server.listen(this.port, () => {

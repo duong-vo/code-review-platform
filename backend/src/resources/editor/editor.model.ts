@@ -1,4 +1,6 @@
-import { Schema, model } from 'mongoose';
+import { Schema, model, Document } from 'mongoose';
+import Editor from './editor.interface';
+
 
 const EditorSchema = new Schema( 
     {
@@ -12,4 +14,5 @@ const EditorSchema = new Schema(
     }
 )
 
-export default EditorSchema;
+const EditorModel = model<Editor & Document>('Editor', EditorSchema);
+export default EditorModel;
