@@ -33,6 +33,9 @@ class SocketServer {
                 socket.broadcast.emit("userConnected", name);
             })
             
+            socket.on('saveEditor', async (editorContent) => {
+                console.log("received save editor", editorContent);
+            })
             // handle load editor
             socket.on('joinEditor', async (editorId) => {
                 console.log('received edtior id', editorId);

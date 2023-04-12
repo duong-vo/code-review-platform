@@ -7,6 +7,7 @@ import io from "socket.io-client";
 import Editor from "@monaco-editor/react";
 
 
+const SAVE_INTERVAL_MS = 2000; // 2 seconds for each auto save
 
 function CodeEditor() {
     const [socket, setSocket] = useState(null);
@@ -49,6 +50,19 @@ function CodeEditor() {
     }, [socket]);
 
     useEffect(() => {
+        if (socket == null) 
+            return;
+    
+        const interval = setInterval(() => {
+          socket.emit("saveEditor", editorRef.current.getValue());
+        }, SAVE_INTERVAL_MS)
+    
+        return () => {
+          clearInterval(interval);
+        }
+      }, [socket, editorRef])
+
+    useEffect(() => {
         if (!socket)
             return;
         if (!editorRef)
@@ -78,7 +92,7 @@ function CodeEditor() {
         // if both are false, this means that the editor is changed
         // by typing
 
-        // is flush mean that the current model has been set to a new value
+        // is flush means that the current model has been set to a new value
         // this is true only when we call setValue, meaning that the edtior
         // changes by user typing, then it will be false 
         if (!event.isFlush) {
