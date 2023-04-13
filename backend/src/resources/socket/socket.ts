@@ -21,38 +21,45 @@ class SocketServer {
             console.log('user connected', socket.id);
             // test socket io emit
             //socket.emit('messageResponse', "hi mom")
+            // testing
             socket.on('message', (data) => {
                 console.log(data);
                 socket.send('received, thank you!');
                 this.io.emit('message', data);
             });
 
-            // handle user
-            socket.on('newUser', (name) => {
-                console.log('received new user name', name);
-                socket.broadcast.emit("userConnected", name);
-            })
-            
-            socket.on('saveEditor', async (editorContent) => {
-                console.log("received save editor", editorContent);
-            })
-            // handle load editor
+
+            // new user join the editor
             socket.on('joinEditor', async (editorId) => {
-                console.log('received edtior id', editorId);
+                console.log('received edtior id, new user joining', editorId);
+                
+                socket.join(editorId);
+                
+
                 await findOrCreateEditor(editorId);
-            })
 
-            // handle editor change
-            socket.on('sendEditorChange', (value) => {
-                console.log("received value on the backend", value);
-                socket.broadcast.emit("editorChanged", value);
-                console.log("emitted to the front end", value);
-            })
+                // handle user
+                socket.on('newUser', (name) => {
+                    console.log('received new user name', name);
+                    socket.broadcast.to(editorId).emit("userConnected", name);
+                });
 
-            // handle select language
-            socket.on('sendLanguageSelect', (language) => {
-                console.log('received new language', language);
-                socket.broadcast.emit('languageSelect', language);
+                socket.on('saveEditor', async (editorContent) => {
+                    console.log("received save editor", editorContent);
+                })
+       
+                // handle editor change
+                socket.on('sendEditorChange', (value) => {
+                    console.log("received value on the backend", value);
+                    socket.broadcast.to(editorId).emit("editorChanged", value);
+                    console.log("emitted to the front end", value);
+                })
+    
+                // handle select language
+                socket.on('sendLanguageSelect', (language) => {
+                    console.log('received new language', language);
+                    socket.broadcast.emit('languageSelect', language);
+                })
             })
 
         });

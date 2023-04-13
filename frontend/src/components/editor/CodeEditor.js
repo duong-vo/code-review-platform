@@ -42,6 +42,7 @@ function CodeEditor() {
         setTimeout(() => {
             socket.emit("newUser", name);
             socket.emit("joinEditor", editorId);
+            
             //TODO: this does not look correct
             setUserList((userList) => [name]); 
             // manually add the first user to userList because broadcasting
