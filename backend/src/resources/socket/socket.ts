@@ -1,6 +1,6 @@
 import { Server } from 'http';
 import { Server as WebSocketServer, Socket } from 'socket.io';
-import { findOrCreateEditor } from '../editor/editor.methods';
+import { findByIdAndUpdate, findOrCreateEditor } from '../editor/editor.methods';
 
 
 class SocketServer {
@@ -35,8 +35,11 @@ class SocketServer {
                 
                 socket.join(editorId);
                 
-
-                await findOrCreateEditor(editorId);
+            
+                const editor = await findOrCreateEditor(editorId);
+                
+                if (editor)
+                    socket.emit("loadEditor", editor.data);
 
                 // handle user
                 socket.on('newUser', (name) => {
@@ -46,6 +49,7 @@ class SocketServer {
 
                 socket.on('saveEditor', async (editorContent) => {
                     console.log("received save editor", editorContent);
+                    await findByIdAndUpdate(editorId, editorContent);
                 })
        
                 // handle editor change

@@ -39,10 +39,14 @@ function CodeEditor() {
         console.log("receive the name, emitted to the backend:", name);
         console.log("editor id: ", editorId);
 
+        socket.once("load-document", editor => {
+            editorRef.current.setValue(editor);
+        })
+
         setTimeout(() => {
             socket.emit("newUser", name);
             socket.emit("joinEditor", editorId);
-            
+
             //TODO: this does not look correct
             setUserList((userList) => [name]); 
             // manually add the first user to userList because broadcasting
