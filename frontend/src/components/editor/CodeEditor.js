@@ -36,12 +36,11 @@ function CodeEditor() {
             return
         // test connection
         const name = prompt("Insert name");
-        console.log("receive the name, emitted to the backend:", name);
-        console.log("editor id: ", editorId);
 
         socket.once("loadEditor", (editor) => {
             console.log("received room editor", editor);
             editorRef.current.setValue(editor);
+            socket.emit("newUser", name);
         })
 
         socket.once('userConnected', (user) => {
@@ -52,7 +51,6 @@ function CodeEditor() {
         });
 
         setTimeout(() => {
-            socket.emit("newUser", name);
             socket.emit("joinEditor", editorId);
 
             //TODO: this does not look correct

@@ -46,7 +46,7 @@ class SocketServer {
 
                 // handle user
                 socket.on('newUser', (name) => {
-                    console.log('received new user name', name);
+                    console.log('****received new user name****', name);
                     socket.broadcast.to(editorId).emit("userConnected", name);
                 });
 
