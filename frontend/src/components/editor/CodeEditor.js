@@ -39,9 +39,17 @@ function CodeEditor() {
         console.log("receive the name, emitted to the backend:", name);
         console.log("editor id: ", editorId);
 
-        socket.once("load-document", editor => {
+        socket.once("loadEditor", (editor) => {
+            console.log("received room editor", editor);
             editorRef.current.setValue(editor);
         })
+
+        socket.once('userConnected', (user) => {
+            console.log("user connected", user);
+            console.log("current userList", userList);
+            setName(user);
+            setUserList((userList) => [...userList, user]);
+        });
 
         setTimeout(() => {
             socket.emit("newUser", name);
@@ -52,6 +60,7 @@ function CodeEditor() {
             // manually add the first user to userList because broadcasting
             // requires multiple users
         }, 1000);
+
     }, [socket]);
 
     useEffect(() => {
@@ -72,12 +81,6 @@ function CodeEditor() {
             return;
         if (!editorRef)
             return;
-        socket.on('userConnected', (user) => {
-            console.log("user connected", user);
-            console.log("current userList", userList);
-            setName(user);
-            setUserList((userList) => [...userList, user]);
-        });
         
         socket.on("editorChanged", (value) => { 
             console.log("received change", value);
