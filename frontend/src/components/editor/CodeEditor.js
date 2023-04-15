@@ -1,10 +1,13 @@
+import './index.css';
 import React, { useEffect, useState, useRef } from "react";
 import { useParams } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.css';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import Dropdown from 'react-bootstrap/Dropdown'
+import UserList from './UserList';
 import io from "socket.io-client";
 import Editor from "@monaco-editor/react";
+
 
 
 const SAVE_INTERVAL_MS = 2000; // 2 seconds for each auto save
@@ -35,7 +38,8 @@ function CodeEditor() {
         if (!socket)
             return
         // test connection
-        const name = prompt("Insert name");
+        // const name = prompt("Insert name");
+        const name = "hard coded";
 
         socket.once("loadEditor", (editor) => {
             console.log("received room editor", editor);
@@ -49,7 +53,8 @@ function CodeEditor() {
             setName(user);
             setUserList((userList) => [...userList, user]);
         });
-
+        
+        // set timeout to ensure connection
         setTimeout(() => {
             socket.emit("joinEditor", editorId);
 
@@ -124,22 +129,11 @@ function CodeEditor() {
     }
 
     return (
-        <div>
-            <div>
-                {userList.map((name) => <div> {name} </div>)}
-            </div>
-            <div>
+        <div class="container">
+            <UserList userList={userList}/>
+            <div class="language">
                 {language}
             </div>
-            <Editor
-                height="90vh"
-                width="80vh"
-                language={language}
-                defaultValue=""
-                onChange={handleChange}
-                // onDidChangeModelContent={handleDidChangeModelContent}
-                onMount={handleEditorDidMount}
-            />
             <DropdownButton
                 alignRight
                 title={language}
@@ -152,6 +146,16 @@ function CodeEditor() {
                 <Dropdown.Item eventKey="cpp">cpp</Dropdown.Item>
                 <Dropdown.Item eventKey="ruby">ruby</Dropdown.Item>
             </DropdownButton>
+            <Editor
+                height="90vh"
+                width="80vh"
+                language={language}
+                defaultValue=""
+                onChange={handleChange}
+                // onDidChangeModelContent={handleDidChangeModelContent}
+                onMount={handleEditorDidMount}
+                theme="vs-dark"
+            />
         </div>
     )
 }
