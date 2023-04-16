@@ -40,6 +40,7 @@ function CodeEditor() {
         // test connection
         // const name = prompt("Insert name");
         const name = "hard coded";
+        setUserList((userList) => [...userList, name]);
 
         socket.once("loadEditor", (editor) => {
             console.log("received room editor", editor);
