@@ -20,17 +20,14 @@ class SocketServer {
 
         this.io.on('connection', (socket: Socket) => {
             console.log('user connected', socket.id);
-            // test socket io emit
-            //socket.emit('messageResponse', "hi mom")
-            // testing
+
+            // TEST
             socket.on('message', (data) => {
                 console.log(data);
                 socket.send('received, thank you!');
                 this.io.emit('message', data);
             });
 
-
-            // new user join the editor
             socket.on('joinEditor', async (editorId) => {
                 console.log('received edtior id, new user joining', editorId);
                 
@@ -75,8 +72,6 @@ class SocketServer {
             console.log('Socket server error:', err);
         })
     }
-
-    private handleEditorChange() {}
 
     public listen() {
         this.server.listen(this.port, () => {
