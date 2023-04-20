@@ -1,3 +1,4 @@
+import './index.css';
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.css';
@@ -22,19 +23,13 @@ function Home() {
     }
 
     return (
-        <div style={{
-            display: 'block',
-            width: 700,
-            padding: 30
-        }}>
-        <button type="submit" class="btn btn-dark" onClick={createRoom}>New Room</button>
-        <Form.Control type="text" 
-                        placeholder="Enter room Id"
-                        onChange={(event) => {
-                            setRoom(event.target.value);
-                          }} />
-        <button class="btn btn-dark" onClick={joinRoom}>Join Room</button>
-
+        <div class="buttons-container">
+            <button type="submit" class="btn btn-dark" onClick={createRoom}>New Room</button>
+            <Form.Control 
+                          type="text" 
+                          placeholder="Enter room Id"
+                          onChange={(event) => { setRoom(event.target.value); }} />
+            <button class="btn btn-dark" onClick={joinRoom}>Join Room</button>
         </div>
     );
 }

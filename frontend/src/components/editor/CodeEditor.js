@@ -11,6 +11,11 @@ import Editor from "@monaco-editor/react";
 
 
 const SAVE_INTERVAL_MS = 2000; // 2 seconds for each auto save
+const languageKeyMap = {"python": "Python",
+                        "javascript": "JavaScript",
+                        "java": "Java",
+                        "cpp": "C++",
+                        "ruby": "Ruby"}
 
 function CodeEditor() {
     const [socket, setSocket] = useState(null);
@@ -133,19 +138,19 @@ function CodeEditor() {
         <div class="container">
             <UserList userList={userList}/>
             <div class="language">
-                {language}
+                {languageKeyMap[language]}
             </div>
             <DropdownButton
                 alignRight
-                title={language}
+                title={languageKeyMap[language]}
                 id="dropdown-menu-align-right"
                 onSelect={handleSelect}
             >
-                <Dropdown.Item eventKey="python">python</Dropdown.Item>
-                <Dropdown.Item eventKey="javascript">javascript</Dropdown.Item>
-                <Dropdown.Item eventKey="java">java</Dropdown.Item>
-                <Dropdown.Item eventKey="cpp">cpp</Dropdown.Item>
-                <Dropdown.Item eventKey="ruby">ruby</Dropdown.Item>
+                <Dropdown.Item eventKey="python">Python</Dropdown.Item>
+                <Dropdown.Item eventKey="javascript">Javascript</Dropdown.Item>
+                <Dropdown.Item eventKey="java">Java</Dropdown.Item>
+                <Dropdown.Item eventKey="cpp">C++</Dropdown.Item>
+                <Dropdown.Item eventKey="ruby">Ruby</Dropdown.Item>
             </DropdownButton>
             <Editor
                 height="90vh"

@@ -2,6 +2,8 @@ import "./index.css";
 import React from "react";
 
 const colorUserDict = {};
+
+// TODO: There is a bug with this, where the peers color do not match
 function UserList(props) {
 
     console.log("userList: ", props.userList);
