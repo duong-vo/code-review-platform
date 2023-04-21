@@ -1,8 +1,12 @@
 .buttons-container {
     display: flex;
+    justify-self: center;
+    align-self: center;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    min-height: 100vh;
+    width: 50%;
+    margin: auto;
     flex-direction: column;
 }
 
