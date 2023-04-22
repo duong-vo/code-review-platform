@@ -1,5 +1,5 @@
 import './index.css';
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useParams } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.css';
 import DropdownButton from 'react-bootstrap/DropdownButton';
@@ -45,7 +45,6 @@ function CodeEditor() {
         // test connection
         // const name = prompt("Insert name");
         const name = "hard coded";
-        setUserList((userList) => [...userList, name]);
 
         socket.once("loadEditor", (editor) => {
             console.log("received room editor", editor);
@@ -53,25 +52,25 @@ function CodeEditor() {
             socket.emit("newUser", name);
         })
 
-        socket.once('userConnected', (user) => {
-            console.log("user connected", user);
+        socket.once('userListUpdated', (updatedUserList) => {
+            console.log("receive new userList", updatedUserList);
             console.log("current userList", userList);
-            setName(user);
-            setUserList((userList) => [...userList, user]);
+            // setName(user);
+            setUserList(updatedUserList);
         });
         
         // set timeout to ensure connection
         setTimeout(() => {
             socket.emit("joinEditor", editorId);
 
-            //TODO: this does not look correct
-            setUserList((userList) => [name]); 
-            // manually add the first user to userList because broadcasting
-            // requires multiple users
         }, 1000);
-
+        return () => {
+            socket.emit('disconnect', name);
+        }
     }, [socket]);
 
+
+    
     useEffect(() => {
         if (socket == null) 
             return;

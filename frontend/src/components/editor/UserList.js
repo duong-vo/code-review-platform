@@ -15,11 +15,11 @@ function UserList(props) {
     console.log(colorUserDict);
     return (
     <div class="namelist-container">
-        { props.userList.map((name) => 
+        { props.userList.map((object) => 
             <div class="name-container"> 
-                <div class="name-circle" style={{backgroundColor:"#"+colorUserDict[name],
+                <div class="name-circle" style={{backgroundColor:"#"+colorUserDict[object.name],
                                                  alignItems: "center"}}/>
-                <p class="name"> {name} </p> 
+                <p class="name"> {object.name} </p> 
             </div>
           ) 
         }
