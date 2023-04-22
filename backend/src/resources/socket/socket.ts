@@ -29,45 +29,50 @@ class SocketServer {
                 this.io.emit('message', data);
             });
 
-            socket.on('joinEditor', async (editorId) => {
-                console.log('received edtior id, new user joining', editorId);
+            socket.on('joinEditor', async (data) => {
+                console.log('received edtior id, new user joining', data.editorId);
 
-                socket.join(editorId);
+                socket.join(data.editorId);
 
-
-                const editor = await findOrCreateEditor(editorId);
+                const editor = await findOrCreateEditor(data.editorId);
 
                 if (editor) {
                     console.log("emit the editor onto the frontend", editor);
-                    socket.emit("loadEditor", editor.data);
+                    userList.push({ "name": data.name, socketId: socket.id });
+                    socket.emit("loadEditor", {editorData:editor.data, userList:userList});
+
+                    console.log("updated userList", userList);
+                    socket.broadcast.to(data.editorId).emit("userListUpdated", userList);
+                    console.log("emitted upated list to the front end!");
                 }
 
                 // handle user
-                socket.on('newUser', (name) => {
-                    console.log('****received new user name****', name);
-                    userList.push({ "name": name, socketId: socket.id });
-                    console.log("userList", userList);
-                    socket.broadcast.to(editorId).emit("userListUpdated", userList);
-                });
+                // socket.on('newUser', (name) => {
+                //     console.log('****received new user name****', name);
+                //     userList.push({ "name": name, socketId: socket.id });
+                //     console.log("updated userList", userList);
+                //     socket.broadcast.to(data.editorId).emit("userListUpdated", userList);
+                //     console.log("emitted upated list to the front end!");
+                // });
 
                 socket.on('disconnect', () => {
                     console.log("a user disconnected");
                     const disconnectedUser = userList.find(userObject => userObject.socketId === socket.id);
                     if (disconnectedUser) {
                         userList.splice(userList.indexOf(disconnectedUser), 1);
-                        socket.broadcast.to(editorId).emit('userListUpdated', userList);
+                        socket.broadcast.to(data.editorId).emit('userListUpdated', userList);
                     }
 
                 })
                 socket.on('saveEditor', async (editorContent) => {
                     // console.log("received save editor", editorContent);
-                    await findByIdAndUpdate(editorId, editorContent);
+                    await findByIdAndUpdate(data.editorId, editorContent);
                 })
 
                 // handle editor change
                 socket.on('sendEditorChange', (value) => {
                     console.log("received value on the backend", value);
-                    socket.broadcast.to(editorId).emit("editorChanged", value);
+                    socket.broadcast.to(data.editorId).emit("editorChanged", value);
                     console.log("emitted to the front end", value);
                 })
 

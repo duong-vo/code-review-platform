@@ -11,16 +11,18 @@ import Editor from "@monaco-editor/react";
 
 
 const SAVE_INTERVAL_MS = 2000; // 2 seconds for each auto save
-const languageKeyMap = {"python": "Python",
-                        "javascript": "JavaScript",
-                        "java": "Java",
-                        "cpp": "C++",
-                        "ruby": "Ruby"}
+const languageKeyMap = {
+    "python": "Python",
+    "javascript": "JavaScript",
+    "java": "Java",
+    "cpp": "C++",
+    "ruby": "Ruby"
+}
 
 function CodeEditor() {
     const [socket, setSocket] = useState(null);
-    const {roomId: editorId} = useParams();
-    const [name, setName] = useState(null);
+    const { roomId: editorId } = useParams();
+    const [isConnected, setIsConnected] = useState(false);
     const [language, setLanguage] = useState("javascript");
     const [userList, setUserList] = useState([]);
     // this is used to make sure that we send changes only when
@@ -46,23 +48,24 @@ function CodeEditor() {
         // const name = prompt("Insert name");
         const name = "hard coded";
 
-        socket.once("loadEditor", (editor) => {
-            console.log("received room editor", editor);
-            editorRef.current.setValue(editor);
-            socket.emit("newUser", name);
+
+        socket.once("loadEditor", (data) => {
+            console.log("received room editor", data);
+            //socket.emit("newUser", name);
+            setUserList(data.userList);
+            editorRef.current.setValue(data.editorData);
         })
 
-        socket.once('userListUpdated', (updatedUserList) => {
+        socket.on('userListUpdated', (updatedUserList) => {
             console.log("receive new userList", updatedUserList);
             console.log("current userList", userList);
             // setName(user);
             setUserList(updatedUserList);
         });
-        
+
         // set timeout to ensure connection
         setTimeout(() => {
-            socket.emit("joinEditor", editorId);
-
+            socket.emit("joinEditor", {editorId, name});
         }, 1000);
         return () => {
             socket.emit('disconnect', name);
@@ -70,27 +73,27 @@ function CodeEditor() {
     }, [socket]);
 
 
-    
+
     useEffect(() => {
-        if (socket == null) 
+        if (socket == null)
             return;
-    
+
         const interval = setInterval(() => {
-          socket.emit("saveEditor", editorRef.current.getValue());
+            socket.emit("saveEditor", editorRef.current.getValue());
         }, SAVE_INTERVAL_MS)
-    
+
         return () => {
-          clearInterval(interval);
+            clearInterval(interval);
         }
-      }, [socket, editorRef])
+    }, [socket, editorRef])
 
     useEffect(() => {
         if (!socket)
             return;
         if (!editorRef)
             return;
-        
-        socket.on("editorChanged", (value) => { 
+
+        socket.on("editorChanged", (value) => {
             console.log("received change", value);
             editorRef.current.getModel().setValue(value);
         });
@@ -130,12 +133,12 @@ function CodeEditor() {
     const handleSelect = (value, event) => {
         console.log("receive select", event);
         socket.emit("sendLanguageSelect", value);
-        setLanguage(value);  
+        setLanguage(value);
     }
 
     return (
         <div class="container">
-            <UserList userList={userList}/>
+            <UserList userList={userList} />
             <div class="language">
                 {languageKeyMap[language]}
             </div>
