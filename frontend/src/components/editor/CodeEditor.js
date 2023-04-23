@@ -1,5 +1,5 @@
 import './index.css';
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useParams } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.css';
 import DropdownButton from 'react-bootstrap/DropdownButton';
@@ -22,7 +22,6 @@ const languageKeyMap = {
 function CodeEditor() {
     const [socket, setSocket] = useState(null);
     const { roomId: editorId } = useParams();
-    const [isConnected, setIsConnected] = useState(false);
     const [language, setLanguage] = useState("javascript");
     const [userList, setUserList] = useState([]);
     // this is used to make sure that we send changes only when
@@ -41,39 +40,38 @@ function CodeEditor() {
         }
     }, []);
 
+    // handle user joining
     useEffect(() => {
         if (!socket)
             return
         // test connection
-        // const name = prompt("Insert name");
-        const name = "hard coded";
+        const name = prompt("Insert name");
+        // set timeout to ensure connection
+        setTimeout(() => {
+            socket.emit("newUser", { editorId, name });
+        }, 1000);
 
-
-        socket.once("loadEditor", (data) => {
+        // const name = "hard coded";
+        socket.once("receiveEditor", (data) => {
             console.log("received room editor", data);
             //socket.emit("newUser", name);
             setUserList(data.userList);
             editorRef.current.setValue(data.editorData);
         })
 
-        socket.on('userListUpdated', (updatedUserList) => {
+        socket.on('updateUserList', (updatedUserList) => {
             console.log("receive new userList", updatedUserList);
             console.log("current userList", userList);
             // setName(user);
             setUserList(updatedUserList);
         });
 
-        // set timeout to ensure connection
-        setTimeout(() => {
-            socket.emit("joinEditor", {editorId, name});
-        }, 1000);
         return () => {
-            socket.emit('disconnect', name);
+            socket.emit('disconnect');
         }
     }, [socket]);
 
-
-
+    // handle save editor instance
     useEffect(() => {
         if (socket == null)
             return;
@@ -87,23 +85,23 @@ function CodeEditor() {
         }
     }, [socket, editorRef])
 
+    // handle editor events
     useEffect(() => {
         if (!socket)
             return;
         if (!editorRef)
             return;
 
-        socket.on("editorChanged", (value) => {
+        socket.on("receiveEditorChange", (value) => {
             console.log("received change", value);
             editorRef.current.getModel().setValue(value);
         });
 
-        socket.on("languageSelect", (language) => {
+        socket.on("receiveLanguageSelect", (language) => {
             console.log("received new language selected", language);
             // editorRef.current.getModel().setLanguage(language);
             setLanguage(language);
         })
-
     }, [socket]);
 
     const handleChange = (value, event) => {
@@ -117,14 +115,7 @@ function CodeEditor() {
         if (!event.isFlush) {
             socket.emit("sendEditorChange", value);
         }
-
     }
-
-    // const handleDidChangeModelContent = (event) => {
-    //     console.log("received model change",);
-    //     console.log(event);
-    // }
-
 
     const handleEditorDidMount = (editor) => {
         editorRef.current = editor;
@@ -160,7 +151,6 @@ function CodeEditor() {
                 language={language}
                 defaultValue=""
                 onChange={handleChange}
-                // onDidChangeModelContent={handleDidChangeModelContent}
                 onMount={handleEditorDidMount}
                 theme="vs-dark"
             />

@@ -13,18 +13,19 @@ function UserList(props) {
     }
     console.log(colorUserDict);
     return (
-    <div class="namelist-container">
-        { props.userList.map((object) => 
-            <div class="name-container"> 
-                <div class="name-circle" style={{backgroundColor:"#"+colorUserDict[object.name],
-                                                 alignItems: "center"}}/>
-                <p class="name"> {object.name} </p> 
-            </div>
-          ) 
-        }
-    </div>
+        <div class="namelist-container">
+            {props.userList.map((userObject) =>
+                <div class="name-container">
+                    <div class="name-circle" style={{
+                        backgroundColor: "#" + colorUserDict[userObject.name],
+                        alignItems: "center"
+                    }} />
+                    <p class="name"> {userObject.name} </p>
+                </div>
+            )}
+        </div>
     );
 }
-        
+
 
 export default UserList;
