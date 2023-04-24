@@ -22,12 +22,6 @@ class SocketServer {
         this.io.on('connection', (socket: Socket) => {
             console.log('user connected', socket.id);
             console.log('socket.id type', typeof (socket.id));
-            // TEST
-            // socket.on('message', (data) => {
-            //     console.log(data);
-            //     socket.send('received, thank you!');
-            //     this.io.emit('message', data);
-            // });
 
             socket.on('newUser', async (data: SocketData) => {
                 console.log('received edtior id, new user joining', data.editorId);
@@ -45,24 +39,8 @@ class SocketServer {
                     console.log("emitted upated list to the front end!");
                 }
 
-                // handle user
-                // socket.on('newUser', (name) => {
-                //     console.log('****received new user name****', name);
-                //     this.userList.push({ "name": name, socketId: socket.id });
-                //     console.log("updated this.userList", this.userList);
-                //     socket.broadcast.to(data.editorId).emit("userListUpdated", this.userList);
-                //     console.log("emitted upated list to the front end!");
-                // });
-
                 // handle user disconnecting
-                socket.on('disconnect', () => {
-                    console.log("a user disconnected");
-                    const disconnectedUser = this.userList.find(userObject => userObject.socketId === socket.id);
-                    if (disconnectedUser) {
-                        this.userList.splice(this.userList.indexOf(disconnectedUser), 1);
-                        socket.broadcast.to(data.editorId).emit('updateUserList', this.userList);
-                    }
-                })
+                socket.on('disconnect', this.handledDisconnect(socket,data));
 
                 // handle save editor
                 socket.on('saveEditor', async (editorContent) => {
@@ -91,14 +69,21 @@ class SocketServer {
         })
     }
 
-    private async handledDisconnect(socket: Socket, data: SocketData) {
-        console.log("a user disconnected");
-        const disconnectedUser = this.userList.find(userObject => userObject.socketId === socket.id);
-        if (disconnectedUser) {
-            this.userList.splice(this.userList.indexOf(disconnectedUser), 1);
-            socket.broadcast.to(data.editorId).emit('updateUserList', this.userList);
+    private handledDisconnect(socket: Socket, data: SocketData): (...args: any[]) => void {
+
+        const handler = (data: SocketData): (...args: any[]) => void => {
+            console.log("a user disconnected");
+            return () => {
+                const disconnectedUser = this.userList.find(userObject => userObject.socketId === socket.id);
+                if (disconnectedUser) {
+                    this.userList.splice(this.userList.indexOf(disconnectedUser), 1);
+                    socket.broadcast.to(data.editorId).emit('updateUserList', this.userList);
+                }
+            }
         }
+        return handler(data);
     }
+
     public listen() {
         this.server.listen(this.port, () => {
             console.log('socket server running on', this.port);
@@ -107,3 +92,28 @@ class SocketServer {
 }
 
 export default SocketServer;
+
+// DEAD CODE ******
+
+/** This code was used for testing socket connection
+ * /
+// TEST
+// socket.on('message', (data) => {
+//     console.log(data);
+//     socket.send('received, thank you!');
+//     this.io.emit('message', data);
+// });
+
+/**
+ * Initially, I used separate handler for user Connection and room connection
+ * now that I have combined them together to avoid asynchronous bugs, this code
+ * is no longer needed
+ */
+// handle user
+// socket.on('newUser', (name) => {
+//     console.log('****received new user name****', name);
+//     this.userList.push({ "name": name, socketId: socket.id });
+//     console.log("updated this.userList", this.userList);
+//     socket.broadcast.to(data.editorId).emit("userListUpdated", this.userList);
+//     console.log("emitted upated list to the front end!");
+// });
