@@ -69,6 +69,7 @@ function CodeEditor() {
         return () => {
             socket.emit('disconnect');
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [socket]);
 
     // handle save editor instance

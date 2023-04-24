@@ -3,12 +3,13 @@ import { Server as WebSocketServer, Socket } from 'socket.io';
 import { findByIdAndUpdate, findOrCreateEditor } from '../editor/editor.methods';
 import { emit } from 'process';
 import Guest from '../user/guest.interface';
+import SocketData from './socket.interface';
 
 class SocketServer {
     public io: WebSocketServer;
     public port = 9999;
     public server: Server;
-
+    public userList: Guest[] = [];
     constructor(server: Server) {
         this.port = 9999;
         this.server = server;
@@ -17,7 +18,7 @@ class SocketServer {
                 origin: '*'
             }
         });
-        const userList: Guest[] = [];
+
         this.io.on('connection', (socket: Socket) => {
             console.log('user connected', socket.id);
             console.log('socket.id type', typeof (socket.id));
@@ -28,7 +29,7 @@ class SocketServer {
             //     this.io.emit('message', data);
             // });
 
-            socket.on('newUser', async (data) => {
+            socket.on('newUser', async (data: SocketData) => {
                 console.log('received edtior id, new user joining', data.editorId);
 
                 socket.join(data.editorId);
@@ -37,29 +38,29 @@ class SocketServer {
 
                 if (editor) {
                     console.log("emit the editor onto the frontend", editor);
-                    userList.push({ name: data.name, socketId: socket.id });
-                    socket.emit("receiveEditor", {editorData: editor.data, userList:userList});
-                    console.log("updated userList", userList);
-                    socket.broadcast.to(data.editorId).emit("updateUserList", userList);
+                    this.userList.push({ name: data.name, socketId: socket.id });
+                    socket.emit("receiveEditor", { editorData: editor.data, userList: this.userList });
+                    console.log("updated this.userList", this.userList);
+                    socket.broadcast.to(data.editorId).emit("updateUserList", this.userList);
                     console.log("emitted upated list to the front end!");
                 }
 
                 // handle user
                 // socket.on('newUser', (name) => {
                 //     console.log('****received new user name****', name);
-                //     userList.push({ "name": name, socketId: socket.id });
-                //     console.log("updated userList", userList);
-                //     socket.broadcast.to(data.editorId).emit("userListUpdated", userList);
+                //     this.userList.push({ "name": name, socketId: socket.id });
+                //     console.log("updated this.userList", this.userList);
+                //     socket.broadcast.to(data.editorId).emit("userListUpdated", this.userList);
                 //     console.log("emitted upated list to the front end!");
                 // });
 
                 // handle user disconnecting
                 socket.on('disconnect', () => {
                     console.log("a user disconnected");
-                    const disconnectedUser = userList.find(userObject => userObject.socketId === socket.id);
+                    const disconnectedUser = this.userList.find(userObject => userObject.socketId === socket.id);
                     if (disconnectedUser) {
-                        userList.splice(userList.indexOf(disconnectedUser), 1);
-                        socket.broadcast.to(data.editorId).emit('updateUserList', userList);
+                        this.userList.splice(this.userList.indexOf(disconnectedUser), 1);
+                        socket.broadcast.to(data.editorId).emit('updateUserList', this.userList);
                     }
                 })
 
@@ -90,6 +91,14 @@ class SocketServer {
         })
     }
 
+    private async handledDisconnect(socket: Socket, data: SocketData) {
+        console.log("a user disconnected");
+        const disconnectedUser = this.userList.find(userObject => userObject.socketId === socket.id);
+        if (disconnectedUser) {
+            this.userList.splice(this.userList.indexOf(disconnectedUser), 1);
+            socket.broadcast.to(data.editorId).emit('updateUserList', this.userList);
+        }
+    }
     public listen() {
         this.server.listen(this.port, () => {
             console.log('socket server running on', this.port);

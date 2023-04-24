@@ -5,7 +5,7 @@ import Editor from './editor.interface';
 const EditorSchema = new Schema( 
     {
         _id: {
-            type: Number,
+            type: String,
             require: true,
         },
         data: {
