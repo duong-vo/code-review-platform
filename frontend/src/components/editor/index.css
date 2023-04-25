@@ -11,6 +11,13 @@
     color:white;
 }
 
+.namelist-container {
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+}
+
+
 .name-circle {
     display: flex;
     width: 10px;

@@ -147,7 +147,7 @@ function CodeEditor() {
                 <Dropdown.Item eventKey="ruby">Ruby</Dropdown.Item>
             </DropdownButton>
             <Editor
-                height="90vh"
+                height="75vh"
                 width="80vh"
                 language={language}
                 defaultValue=""
