@@ -32,7 +32,8 @@ class SocketServer {
 
                 if (editor) {
                     console.log("emit the editor onto the frontend", editor);
-                    this.userList.push({ name: data.name, socketId: socket.id });
+                    const colorHash:string = Math.floor(Math.random() * 16777215).toString(16);
+                    this.userList.push({ name: data.name, socketId: socket.id, colorHash: colorHash });
                     socket.emit("receiveEditor", { editorData: editor.data, userList: this.userList });
                     console.log("updated this.userList", this.userList);
                     socket.broadcast.to(data.editorId).emit("updateUserList", this.userList);
