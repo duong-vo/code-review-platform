@@ -120,12 +120,27 @@ function CodeEditor() {
 
     const handleEditorDidMount = (editor) => {
         editorRef.current = editor;
+        editorRef.current.addAction({
+            id: "myPaste",
+            label: "Add comment",
+            contextMenuGroupId: "9_cutcopypaste",
+            run: editor => {
+              alert("Not implemented yet");
+            }
+          });
     }
 
     const handleSelect = (value, event) => {
         console.log("receive select", event);
         socket.emit("sendLanguageSelect", value);
         setLanguage(value);
+    }
+
+    const handleContextMenu = (event) => {
+        console.log("on context menu event", event);
+        event.preventDefault();
+        const selection = window.getSelection;
+        console.log("Code editor selection:", selection);
     }
 
     return (
@@ -153,6 +168,7 @@ function CodeEditor() {
                 defaultValue=""
                 onChange={handleChange}
                 onMount={handleEditorDidMount}
+                onContextMenu={handleContextMenu}
                 theme="vs-dark"
             />
         </div>
