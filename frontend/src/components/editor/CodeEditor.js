@@ -124,10 +124,28 @@ function CodeEditor() {
             id: "myPaste",
             label: "Add comment",
             contextMenuGroupId: "9_cutcopypaste",
-            run: editor => {
-              alert("Not implemented yet");
-            }
+            run: addCommentContext
           });
+    }
+
+    const addCommentContext = (editor) => {
+        console.log("add comment context clicked");
+        const selectedObject = editor.getSelection();
+        console.log("code editor text selected", selectedObject);
+        const startRow = selectedObject.startLineNumber - 1;
+        console.log("starting row", startRow);
+        const endRow = selectedObject.endLineNumber - 1;
+        console.log("ending row", endRow);
+        const startCol = selectedObject.startColumn - 1;
+        console.log("starting col", startCol);
+        const endCol = selectedObject.endColumn - 1;
+        console.log("ending col", endCol);
+        const flattenedStartIdx = startRow + startCol;
+        const flattenedEndIdx = startCol + endCol;
+        const editorValue = editor.getValue();
+        console.log("editor value", editorValue);
+        const selected = editorValue.substring(flattenedStartIdx, flattenedEndIdx);
+        console.log("selected value", selected);
     }
 
     const handleSelect = (value, event) => {
