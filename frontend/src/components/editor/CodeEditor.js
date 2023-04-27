@@ -8,8 +8,6 @@ import UserList from './UserList';
 import io from "socket.io-client";
 import Editor from "@monaco-editor/react";
 
-
-
 const SAVE_INTERVAL_MS = 2000; // 2 seconds for each auto save
 const languageKeyMap = {
     "python": "Python",
@@ -24,8 +22,6 @@ function CodeEditor() {
     const { roomId: editorId } = useParams();
     const [language, setLanguage] = useState("javascript");
     const [userList, setUserList] = useState([]);
-    // this is used to make sure that we send changes only when
-    // the user is typing in
     const editorRef = useRef(null);
 
     // use effect is similar to componentDidMount(), meaning 
@@ -69,7 +65,7 @@ function CodeEditor() {
         return () => {
             socket.emit('disconnect');
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [socket]);
 
     // handle save editor instance
@@ -125,27 +121,38 @@ function CodeEditor() {
             label: "Add comment",
             contextMenuGroupId: "9_cutcopypaste",
             run: addCommentContext
-          });
+        });
     }
 
-    const addCommentContext = (editor) => {
-        console.log("add comment context clicked");
+    const addCommentContext = (editor, monaco) => {
+        console.log("add comment context clicked", monaco);
         const selectedObject = editor.getSelection();
         console.log("code editor text selected", selectedObject);
-        const startRow = selectedObject.startLineNumber - 1;
-        console.log("starting row", startRow);
-        const endRow = selectedObject.endLineNumber - 1;
-        console.log("ending row", endRow);
-        const startCol = selectedObject.startColumn - 1;
-        console.log("starting col", startCol);
-        const endCol = selectedObject.endColumn - 1;
-        console.log("ending col", endCol);
-        const flattenedStartIdx = startRow + startCol;
-        const flattenedEndIdx = startCol + endCol;
-        const editorValue = editor.getValue();
-        console.log("editor value", editorValue);
-        const selected = editorValue.substring(flattenedStartIdx, flattenedEndIdx);
-        console.log("selected value", selected);
+
+        const startLineNumber = selectedObject.startLineNumber;
+        const endLineNumber = selectedObject.endLineNumber;
+        const startColumn = selectedObject.startColumn;
+        const endColumn = selectedObject.endColumn;
+        const newRange = new monaco.Range(
+            startLineNumber,
+            startColumn,
+            endLineNumber,
+            endColumn
+        )
+        console.log("selected range index", newRange);
+        const newDecoration = {
+            range: newRange,
+            options: {
+                className: 'textDecoration',
+            }
+        };
+        console.log("new decoration", newDecoration);
+        const decorationIds = editor.deltaDecorations([], [newDecoration]);
+
+        // const flattenedStartIdx = startRow + startCol;
+        // const flattenedEndIdx = endRow + endCol;
+        // const editorValue = editor.getValue();
+        // console.log("editor value", editorValue);
     }
 
     const handleSelect = (value, event) => {
