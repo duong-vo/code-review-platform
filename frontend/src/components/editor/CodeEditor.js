@@ -7,6 +7,7 @@ import Dropdown from 'react-bootstrap/Dropdown'
 import UserList from './UserList';
 import io from "socket.io-client";
 import Editor from "@monaco-editor/react";
+import { Range } from 'monaco-editor';
 
 const SAVE_INTERVAL_MS = 2000; // 2 seconds for each auto save
 const languageKeyMap = {
@@ -22,6 +23,7 @@ function CodeEditor() {
     const { roomId: editorId } = useParams();
     const [language, setLanguage] = useState("javascript");
     const [userList, setUserList] = useState([]);
+    const [decorations, setDecorations] = useState([]);
     const editorRef = useRef(null);
 
     // use effect is similar to componentDidMount(), meaning 
@@ -125,7 +127,7 @@ function CodeEditor() {
     }
 
     const addCommentContext = (editor, monaco) => {
-        console.log("add comment context clicked", monaco);
+        console.log("add comment context clicked");
         const selectedObject = editor.getSelection();
         console.log("code editor text selected", selectedObject);
 
@@ -133,22 +135,30 @@ function CodeEditor() {
         const endLineNumber = selectedObject.endLineNumber;
         const startColumn = selectedObject.startColumn;
         const endColumn = selectedObject.endColumn;
-        const newRange = new monaco.Range(
-            startLineNumber,
-            startColumn,
-            endLineNumber,
-            endColumn
-        )
-        console.log("selected range index", newRange);
-        const newDecoration = {
-            range: newRange,
-            options: {
-                className: 'textDecoration',
-            }
-        };
-        console.log("new decoration", newDecoration);
-        const decorationIds = editor.deltaDecorations([], [newDecoration]);
+        console.log(startLineNumber, endLineNumber, startColumn, endColumn);
+        try {
+            const newRange = new Range(
+                startLineNumber,
+                startColumn,
+                endLineNumber,
+                endColumn
+            )
+            console.log("selected range index", newRange);
+            const newDecoration = {
+                range: newRange,
+                options: {
+                    className: 'textDecoration',
+                }
+            };
+            console.log("new decoration", newDecoration);
+            editor.deltaDecorations([], [newDecoration]);
 
+            const newDecorations = [...decorations, newDecoration];
+            setDecorations(newDecorations);
+            editor.deltaDecorations([], newDecorations);
+        } catch (e) {
+            console.log("Error:", e);
+        }
         // const flattenedStartIdx = startRow + startCol;
         // const flattenedEndIdx = endRow + endCol;
         // const editorValue = editor.getValue();
