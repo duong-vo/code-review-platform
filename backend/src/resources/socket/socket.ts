@@ -24,35 +24,25 @@ class SocketServer {
             console.log('socket.id type', typeof (socket.id));
 
             socket.on('newUser', async (data: SocketData) => {
-                console.log('received edtior id, new user joining', data.editorId);
+                const editorId: string = data.editorId;
+                console.log('received edtior id, new user joining', editorId);
 
-                socket.join(data.editorId);
-
-                const editor = await findOrCreateEditor(data.editorId);
-
-                if (editor) {
-                    console.log("emit the editor onto the frontend", editor);
-                    const colorHash:string = Math.floor(Math.random() * 16777215).toString(16);
-                    this.userList.push({ name: data.name, socketId: socket.id, colorHash: colorHash });
-                    socket.emit("receiveEditor", { editorData: editor.data, userList: this.userList });
-                    console.log("updated this.userList", this.userList);
-                    socket.broadcast.to(data.editorId).emit("updateUserList", this.userList);
-                    console.log("emitted upated list to the front end!");
-                }
+                socket.join(editorId);
+                await this.establishNewConnection(socket, data, editorId);
 
                 // handle user disconnecting
-                socket.on('disconnect', this.handledDisconnect(socket,data));
+                socket.on('disconnect', this.handledDisconnect(socket, data));
 
                 // handle save editor
                 socket.on('saveEditor', async (editorContent) => {
                     // console.log("received save editor", editorContent);
-                    await findByIdAndUpdate(data.editorId, editorContent);
+                    await findByIdAndUpdate(editorId, editorContent);
                 })
 
                 // handle editor change
                 socket.on('sendEditorChange', (value) => {
                     console.log("received value on the backend", value);
-                    socket.broadcast.to(data.editorId).emit("receiveEditorChange", value);
+                    socket.broadcast.to(editorId).emit("receiveEditorChange", value);
                     console.log("emitted to the front end", value);
                 })
 
@@ -83,6 +73,20 @@ class SocketServer {
             }
         }
         return handler(data);
+    }
+
+    private async establishNewConnection(socket: Socket, data: SocketData, editorId: string): Promise<void> {
+        const editor = await findOrCreateEditor(editorId);
+
+        if (editor) {
+            console.log("emit the editor onto the frontend", editor);
+            const colorHash: string = Math.floor(Math.random() * 16777215).toString(16);
+            this.userList.push({ name: data.name, socketId: socket.id, colorHash: colorHash });
+            socket.emit("receiveEditor", { editorData: editor.data, userList: this.userList });
+            console.log("updated this.userList", this.userList);
+            socket.broadcast.to(editorId).emit("updateUserList", this.userList);
+            console.log("emitted upated list to the front end!");
+        }
     }
 
     public listen() {
