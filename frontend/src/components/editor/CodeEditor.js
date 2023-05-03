@@ -24,6 +24,7 @@ function CodeEditor() {
     const [language, setLanguage] = useState("javascript");
     const [userList, setUserList] = useState([]);
     const [decorations, setDecorations] = useState([]);
+    const [file, setFile] = useState(null);
     const editorRef = useRef(null);
 
     // use effect is similar to componentDidMount(), meaning 
@@ -178,8 +179,30 @@ function CodeEditor() {
         console.log("Code editor selection:", selection);
     }
 
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        console.log("handle file submission raw data", e);
+        const reader = new FileReader();
+        console.log("the file object", file);
+        reader.onload = (event) => {
+            const contents = event.target.result;
+            editorRef.current.setValue(contents);
+            console.log("file contents", contents);
+        }
+
+        reader.readAsText(file);
+    }
+
+    const handleFileChange = (event) => {
+        setFile(event.target.files[0]);
+    }
+
     return (
         <div class="container">
+            <form onSubmit={handleSubmit}>
+                <input type="file" onChange={handleFileChange}></input>
+                <button>Submit</button>
+            </form>
             <UserList userList={userList} />
             <div class="language">
                 {languageKeyMap[language]}
