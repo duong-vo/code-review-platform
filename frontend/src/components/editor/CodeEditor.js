@@ -18,6 +18,15 @@ const languageKeyMap = {
     "ruby": "Ruby"
 }
 
+const fileExtensionMap = {
+    "py": "python",
+    "h": "cpp",
+    "js": "javascript",
+    "cpp": "cpp",
+    "java": "java",
+    "rb": "ruby"
+}
+
 function CodeEditor() {
     const [socket, setSocket] = useState(null);
     const { roomId: editorId } = useParams();
@@ -178,15 +187,36 @@ function CodeEditor() {
         const selection = window.getSelection;
         console.log("Code editor selection:", selection);
     }
+    
+    const getFileExtension = (fileName) => {
+        const dotIndex = fileName.lastIndexOf(".");
+        const fileExtension = fileName.substr(dotIndex + 1);
+        return fileExtension;
+    }
 
     const handleSubmit = (e) => {
         e.preventDefault();
         console.log("handle file submission raw data", e);
+        
         const reader = new FileReader();
+        
+        // get file extension
         console.log("the file object", file);
+        const fileName = file.name;
+        const fileExtension = getFileExtension(fileName);
+        console.log("file extension", fileExtension);
+
+        // modify the editor
         reader.onload = (event) => {
             const contents = event.target.result;
-            editorRef.current.setValue(contents);
+            
+            if (fileExtension in fileExtensionMap) {
+                setLanguage(fileExtensionMap[fileExtension]);
+                editorRef.current.setValue(contents);
+            } else {
+                alert("Warning: file not supported");
+            }
+            
             console.log("file contents", contents);
         }
 
