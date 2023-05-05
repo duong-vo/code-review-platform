@@ -212,12 +212,12 @@ function CodeEditor() {
             
             if (fileExtension in fileExtensionMap) {
                 setLanguage(fileExtensionMap[fileExtension]);
+                console.log("file contents", contents);
                 editorRef.current.setValue(contents);
             } else {
                 alert("Warning: file not supported");
             }
             
-            console.log("file contents", contents);
         }
 
         reader.readAsText(file);
