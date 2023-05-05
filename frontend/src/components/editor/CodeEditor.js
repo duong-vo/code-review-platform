@@ -161,7 +161,6 @@ function CodeEditor() {
                 }
             };
             console.log("new decoration", newDecoration);
-            editor.deltaDecorations([], [newDecoration]);
 
             const newDecorations = [...decorations, newDecoration];
             setDecorations(newDecorations);
@@ -169,10 +168,17 @@ function CodeEditor() {
         } catch (e) {
             console.log("Error:", e);
         }
-        // const flattenedStartIdx = startRow + startCol;
-        // const flattenedEndIdx = endRow + endCol;
-        // const editorValue = editor.getValue();
-        // console.log("editor value", editorValue);
+    }
+    
+    const deleteDecoration = (editor, decorationIndex) => {
+        const newDecorations = [...decorations];
+        newDecorations.splice(decorationIndex, 1);
+        setDecorations(newDecorations);
+        editor.deltaDecorations(decorations, newDecorations);
+    };
+
+    const removeCommentContext = (editor) => {
+        
     }
 
     const handleSelect = (value, event) => {
